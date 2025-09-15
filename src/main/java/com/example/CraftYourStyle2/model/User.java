@@ -3,7 +3,7 @@ package com.example.CraftYourStyle2.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table
+@Table(name = "usuarios")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
