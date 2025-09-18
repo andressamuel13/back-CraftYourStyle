@@ -5,16 +5,10 @@ import com.example.CraftYourStyle2.model.User;
 import com.example.CraftYourStyle2.services.UserServices;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "v1/usuarios")
@@ -41,4 +35,13 @@ public class UserController {
         return this.userServices.login(dto);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> obtenerPorId(@PathVariable Long id){
+        return this.userServices.obtenerUsuarioId(id);
+    }
+
+    @PutMapping
+    public ResponseEntity<Object> actualizar(@RequestParam String email,@RequestBody RegisterUserDto dto){
+        return this.userServices.actualizarUsuario(email,dto);
+    }
 }

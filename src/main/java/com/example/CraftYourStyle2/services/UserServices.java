@@ -93,4 +93,60 @@ public class UserServices {
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    public ResponseEntity<Object> obtenerUsuarioId(Long id){
+        HashMap<String,Object> respuesta = new HashMap<>();
+        if (id == null || id <= 0) {
+            respuesta.put("message", "ID inválido. Debe ser un número mayor a 0.");
+            return new ResponseEntity<>(respuesta, HttpStatus.BAD_REQUEST);
+        }
+
+        try{
+            Optional<User> usuario = userRepository.findById(id);
+
+            if(usuario.isPresent()){
+                respuesta.put("message","usuario encontrado");
+                respuesta.put("usuario", usuario.get());
+                return new ResponseEntity<>(respuesta,HttpStatus.OK);
+            }else{
+                respuesta.put("message","usuario no encontrado");
+                return new ResponseEntity<>(respuesta,HttpStatus.NOT_FOUND);
+            }
+
+        } catch (Exception e) {
+            HashMap<String, Object> errorRespuesta = new HashMap<>();
+            errorRespuesta.put("message", "Error en el servidor");
+            errorRespuesta.put("error", e.getMessage());
+            return new ResponseEntity<>(errorRespuesta, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Object> actualizarUsuario(String email,RegisterUserDto dto){
+        HashMap<String,Object> respuesta = new HashMap<>();
+        try{
+            Optional<User> datos = userRepository.findByEmail(email);
+
+            if(datos.isEmpty()){
+                respuesta.put("error",true);
+                respuesta.put("message","el usuario no fue encontrado");
+                return new ResponseEntity<>(respuesta,HttpStatus.NOT_FOUND);
+            }else{
+                User user = datos.get();
+                user.setNombre(dto.getNombre() != null && !dto.getNombre().isEmpty() ? dto.getNombre() : user.getNombre());
+                user.setContraseña(dto.getContraseña() != null && !dto.getContraseña().isEmpty() ? passwordEncoder.encode(dto.getContraseña()) : user.getContraseña());
+                userRepository.save(user);
+                user.setContraseña(null);
+                respuesta.put("usuario",datos.get());
+                respuesta.put("message","usuario actualizado");
+                return new ResponseEntity<>(respuesta,HttpStatus.OK);
+            }
+
+        } catch (Exception e) {
+            respuesta.put("error", true);
+            respuesta.put("message", "Error interno del servidor");
+            respuesta.put("details", e.getMessage());
+            return new ResponseEntity<>(respuesta, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

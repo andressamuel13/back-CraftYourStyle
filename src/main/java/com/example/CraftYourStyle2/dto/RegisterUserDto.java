@@ -8,7 +8,7 @@ public class RegisterUserDto {
     private String nombre;
 
     @Email(message = "el email debe de ser valido")
-    @NotBlank(message = "el email es obligatorio")
+    //@NotBlank(message = "el email es obligatorio")
     private String email;
 
     @NotBlank(message = "la contraseña debe de ser obligatoria")
