@@ -44,4 +44,9 @@ public class UserController {
     public ResponseEntity<Object> actualizar(@RequestParam String email,@RequestBody RegisterUserDto dto){
         return this.userServices.actualizarUsuario(email,dto);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> eliminar(@PathVariable Long id){
+        return this.userServices.eliminarUsario(id);
+    }
 }

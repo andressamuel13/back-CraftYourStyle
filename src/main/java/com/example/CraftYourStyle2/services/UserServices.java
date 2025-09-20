@@ -1,4 +1,5 @@
 package com.example.CraftYourStyle2.services;
+import com.example.CraftYourStyle2.config.JwtUtil;
 import com.example.CraftYourStyle2.config.SecurityConfig;
 import com.example.CraftYourStyle2.dto.LoginUserDto;
 import com.example.CraftYourStyle2.dto.RegisterUserDto;
@@ -20,11 +21,13 @@ import java.util.Optional;
 public class UserServices {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserServices(PasswordEncoder passwordEncoder ,UserRepository userRepository){
+    public UserServices(PasswordEncoder passwordEncoder ,UserRepository userRepository, JwtUtil jwtUtil){
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     public List<User> getUser(){
@@ -80,8 +83,11 @@ public class UserServices {
                 return new ResponseEntity<>(respuesta, HttpStatus.UNAUTHORIZED);
             }
 
+            String token = jwtUtil.generarToken(user.getEmail());
+
             user.setContraseña(null);
 
+            respuesta.put("token", token);
             respuesta.put("usuario", user.getEmail());
             respuesta.put("message", "Login exitoso");
 
@@ -145,6 +151,25 @@ public class UserServices {
             respuesta.put("error", true);
             respuesta.put("message", "Error interno del servidor");
             respuesta.put("details", e.getMessage());
+            return new ResponseEntity<>(respuesta, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public ResponseEntity<Object> eliminarUsario(Long id){
+        HashMap<String,Object> respuesta = new HashMap<>();
+        try{
+            Optional<User> datos = userRepository.findById(id);
+            if(datos.isPresent()){
+                userRepository.deleteById(id);
+                respuesta.put("message","usuario eliminado correctamente");
+                return new ResponseEntity<>(respuesta,HttpStatus.OK);
+            }else{
+                respuesta.put("mensaje", "Usuario no encontrado.");
+                return new ResponseEntity<>(respuesta, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            respuesta.put("mensaje", "Error al eliminar el usuario.");
+            respuesta.put("error", e.getMessage());
             return new ResponseEntity<>(respuesta, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
